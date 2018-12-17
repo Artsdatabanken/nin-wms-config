@@ -2,6 +2,11 @@
 var codeDict = {}
 var classDict = {}
 var parentDict = {}
+var sortDict = {}
+
+function sortNumber(a,b) {
+        return a - b;
+    }
 
 function findParent(code){
    let codeSplit=code.split('-')
@@ -9,8 +14,17 @@ function findParent(code){
    for (var i = 0; i < codeSplit.length -1 ; i++){
      codeParent+=codeSplit[i] + '-'
    }
+   codeParent = codeParent.replace(/-+$/, "")
    codeDict[code] = codeParent
-   return codeParent.replace(/-+$/, "");
+   let codeNumber = codeSplit[codeSplit.length -1]
+   if (!isNaN(codeNumber)) {
+     if(codeParent in sortDict){}
+     else{
+       sortDict[codeParent] = []
+     }
+     sortDict[codeParent].push(parseInt(codeNumber))
+   }
+   return codeParent;
 }
 
 function makeAllLayers(){
@@ -38,9 +52,17 @@ function makeClass(code, color){
 
 function makeLayer(parent){
    let classes = ''
-   parentDict[parent].forEach(code => {
-     classes+=classDict[code]
-  })
+   if(parent in sortDict){
+     sortDict[parent].sort(sortNumber)
+     sortDict[parent].forEach(code => {
+       classes+=classDict[parent + '-' + code]
+    })
+   }
+   else{
+     parentDict[parent].sort().forEach(code => {
+       classes+=classDict[code]
+    })
+   }
 
    return `
   LAYER
