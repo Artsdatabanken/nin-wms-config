@@ -1,0 +1,23 @@
+{
+  "name": "ninMapfileCreator",
+  "version": "1.0.0",
+  "description": "Create .map files for MapServer",
+  "main": "createMapfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Artsdatabanken/ninMapfileCreator.git"
+  },
+  "keywords": [],
+  "author": "Bjorn Reppen <bjreppen@gmail.com> (https://github.com/bjornreppen)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Artsdatabanken/ninMapfileCreator/issues"
+  },
+  "homepage": "https://github.com/Artsdatabanken/ninMapfileCreator#readme",
+  "dependencies": {
+    "tinycolor2": "^1.4.1"
+  }
+}

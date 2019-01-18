@@ -1,0 +1,114 @@
+const fs = require("fs");
+const tinycolor = require("tinycolor2");
+
+const defs = readColors();
+const file = mapFile(defs);
+console.log(file);
+
+function mapFile(defs) {
+  return `
+MAP
+  IMAGETYPE      PNG
+  SIZE           800 600
+  SHAPEPATH      "./data/LA/"
+  IMAGECOLOR     255 0 255
+  PROJECTION
+    "init=epsg:32633"
+  END
+
+  WEB
+    METADATA
+      WMS_ENABLE_REQUEST "*"
+    END
+  END
+
+${mapFileLayers(defs)}
+
+END
+`;
+}
+
+function mapFileLayers(defs) {
+  return Object.keys(defs)
+    .map(layer => {
+      return mapFileLayer(defs, layer);
+    })
+    .join("\n");
+}
+
+function mapFileLayer(defs, layer) {
+  const tittel = defs[layer].navn;
+  const prefix = layer.substring(0, 2);
+  return `
+  LAYER NAME "${layer}"
+    CONNECTIONTYPE OGR
+    CONNECTION "/data/${prefix}/${prefix}.4326.sqlite"
+    DATA "${prefix.toLowerCase()}"
+    CLASSITEM "kode"
+    TYPE         POLYGON
+    METADATA
+      "title" "${tittel}"
+    END
+    PROJECTION
+      "init=epsg:32633"
+    END
+    CLASSITEM "kode"
+${writeClasses(defs, layer).join("\n")}
+  END`;
+}
+
+function writeClasses(defs, kode) {
+  const layer = defs[kode].barn;
+  layer.sort((a, b) => a.sortkey - b.sortkey);
+  return layer.map(def => {
+    if (!(def.kode in defs)) return mapFileClass(def);
+  });
+}
+
+function mapFileClass(def) {
+  const { kode, r, g, b } = def;
+  const parts = kode.split("-");
+  parts[1] += parts[2];
+  parts.splice(2, 1);
+  const kode1 = parts.join("-");
+  return `
+    CLASS NAME "${kode}"
+      EXPRESSION ('[kode]'='${kode}')
+      STYLE
+        OUTLINECOLOR ${r} ${g} ${b}
+        #WIDTH 2
+        COLOR ${r} ${g} ${b}
+      END
+    END`;
+}
+
+function readColors() {
+  const data = fs.readFileSync("typer.json");
+  const typer = JSON.parse(data);
+  const layers = {};
+  const foreldrenoder = {};
+  Object.keys(typer).forEach(kode => {
+    const foreldre = typer[kode].foreldre || [];
+    foreldre.forEach(forelder => {
+      foreldrenoder[forelder] = true;
+    });
+  });
+
+  Object.keys(typer).forEach(kode => {
+    if (kode.startsWith("meta")) return;
+    if (kode.startsWith("LA-KLG")) return;
+    if (kode in foreldrenoder) return;
+    const type = typer[kode];
+    const parts = kode.split("-");
+    const def = {
+      kode: kode,
+      sortkey: parts.pop(),
+      layer: parts.join("-"),
+      ...tinycolor(type.farge).toRgb()
+    };
+    if (!(def.layer in layers))
+      layers[def.layer] = { navn: type.tittel.nb, barn: [] };
+    layers[def.layer].barn.push(def);
+  });
+  return layers;
+}
