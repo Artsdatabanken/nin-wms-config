@@ -1,6 +1,7 @@
 const fs = require("fs");
 const tinycolor = require("tinycolor2");
 
+const mapSourceRelativePath = "Natur_i_Norge/Landskap";
 const defs = readColors();
 const file = mapFile(defs);
 console.log(file);
@@ -42,7 +43,7 @@ function mapFileLayer(defs, layer) {
   return `
   LAYER NAME "${layer}"
     CONNECTIONTYPE OGR
-    CONNECTION "/data/${prefix}/${prefix}.4326.sqlite"
+    CONNECTION "/data/${mapSourceRelativePath}/polygon.spatialite.4326.sqlite"
     DATA "${prefix.toLowerCase()}"
     CLASSITEM "kode"
     TYPE         POLYGON
@@ -83,8 +84,8 @@ function mapFileClass(def) {
 }
 
 function readColors() {
-  const data = fs.readFileSync("typer.json");
-  const typer = JSON.parse(data);
+  const data = fs.readFileSync("data/metadata_med_undertyper.json");
+  const typer = JSON.parse(data).data;
   const layers = {};
   const foreldrenoder = {};
   Object.keys(typer).forEach(kode => {
@@ -94,11 +95,11 @@ function readColors() {
     });
   });
 
-  Object.keys(typer).forEach(kode => {
+  typer.forEach(type => {
+    const kode = type.kode;
     if (kode.startsWith("meta")) return;
     if (kode.startsWith("LA-KLG")) return;
     if (kode in foreldrenoder) return;
-    const type = typer[kode];
     const parts = kode.split("-");
     const def = {
       kode: kode,
