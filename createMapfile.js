@@ -7,6 +7,7 @@ console.log(file);
 
 function mapFile(defs) {
   const layers = mapFileLayers(defs);
+  const includeMapTag = false;
   if (!includeMapTag) return layers;
 
   return `
@@ -24,9 +25,7 @@ MAP
       WMS_ENABLE_REQUEST "*"
     END
   END
-
 ${layers}
-
 END
 `;
 }
@@ -42,10 +41,10 @@ function mapFileLayers(defs) {
 function mapFileLayer(defs, layer1) {
   if (!layer1.startsWith("NN-LA-TI-")) return;
   const layer = hackKodeFordiUtdaterteKartdata(layer1);
-  if (layer1 === "NN-LA-TI-I") debugger;
   const node = defs[layer1];
   const tittel = node.navn;
   const parts = layer.split("-");
+  //  if (layer1 === "NN-LA-TI-I") debugger;
   if (parts.length > 1) parts.pop();
   const prefix = parts.join("-");
   return `
@@ -109,16 +108,17 @@ function readColors() {
     if (kode.startsWith("meta")) return;
     if (kode.startsWith("NN-LA-KLG")) return;
     if (kode in foreldrenoder) return;
+    const forelder = type.overordnet[0] || {};
     const parts = kode.split("-");
     const def = {
       kode: kode,
       sortkey: parts.pop(),
       layer: parts.join("-"),
-      url: type.overordnet.length > 0 && type.overordnet[0].url,
+      url: forelder.url,
       ...tinycolor(type.farge).toRgb()
     };
     if (!(def.layer in layers))
-      layers[def.layer] = { navn: type.tittel.nb, barn: [], url: def.url };
+      layers[def.layer] = { navn: forelder.tittel.nb, barn: [], url: def.url };
     layers[def.layer].barn.push(def);
   });
   return layers;
