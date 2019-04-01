@@ -39,13 +39,15 @@ function mapFileLayers(defs) {
 
 function mapFileLayer(defs, layer) {
   const tittel = defs[layer].navn;
-  const prefix = layer.substring(0, 2);
+  const parts = layer.split("-");
+  parts.pop();
+  const prefix = parts.join("-");
   return `
   LAYER NAME "${layer}"
     CONNECTIONTYPE OGR
     CONNECTION "/data/${mapSourceRelativePath}/polygon.spatialite.4326.sqlite"
     DATA "${prefix.toLowerCase()}"
-    CLASSITEM "kode"
+    CLASSITEM "code"
     TYPE         POLYGON
     METADATA
       "title" "${tittel}"
@@ -53,7 +55,7 @@ function mapFileLayer(defs, layer) {
     PROJECTION
       "init=epsg:32633"
     END
-    CLASSITEM "kode"
+    CLASSITEM "code"
 ${writeClasses(defs, layer).join("\n")}
   END`;
 }
@@ -74,7 +76,7 @@ function mapFileClass(def) {
   const kode1 = parts.join("-");
   return `
     CLASS NAME "${kode}"
-      EXPRESSION ('[kode]'='${kode}')
+      EXPRESSION ('[code]'='${kode}')
       STYLE
         OUTLINECOLOR ${r} ${g} ${b}
         #WIDTH 2
@@ -98,7 +100,7 @@ function readColors() {
   typer.forEach(type => {
     const kode = type.kode;
     if (kode.startsWith("meta")) return;
-    if (kode.startsWith("LA-KLG")) return;
+    if (kode.startsWith("NN-LA-KLG")) return;
     if (kode in foreldrenoder) return;
     const parts = kode.split("-");
     const def = {
