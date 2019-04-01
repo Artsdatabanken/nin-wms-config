@@ -1,7 +1,7 @@
 const fs = require("fs");
 const tinycolor = require("tinycolor2");
 
-const mapSourceRelativePath = "Natur_i_Norge/Landskap";
+const mapSourceRelativePath = "Natur_i_Norge/Landskap/Typeinndeling";
 const defs = readColors();
 const file = mapFile(defs);
 console.log(file);
@@ -38,6 +38,7 @@ function mapFileLayers(defs) {
 }
 
 function mapFileLayer(defs, layer) {
+  if (!layer) return; //~
   const tittel = defs[layer].navn;
   const parts = layer.split("-");
   parts.pop();
@@ -70,13 +71,10 @@ function writeClasses(defs, kode) {
 
 function mapFileClass(def) {
   const { kode, r, g, b } = def;
-  const parts = kode.split("-");
-  parts[1] += parts[2];
-  parts.splice(2, 1);
-  const kode1 = parts.join("-");
+  let hackKode = kode.replace("-TI", "").replace("NN-", "");
   return `
-    CLASS NAME "${kode}"
-      EXPRESSION ('[code]'='${kode}')
+    CLASS NAME "${hackKode}"
+      EXPRESSION ('[code]'='${hackKode}')
       STYLE
         OUTLINECOLOR ${r} ${g} ${b}
         #WIDTH 2
