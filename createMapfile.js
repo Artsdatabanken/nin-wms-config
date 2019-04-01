@@ -1,7 +1,6 @@
 const fs = require("fs");
 const tinycolor = require("tinycolor2");
 
-const mapSourceRelativePath = "Natur_i_Norge/Landskap/Typeinndeling";
 const defs = readColors();
 const file = mapFile(defs);
 console.log(file);
@@ -37,16 +36,19 @@ function mapFileLayers(defs) {
     .join("\n");
 }
 
-function mapFileLayer(defs, layer) {
-  if (!layer) return; //~
-  const tittel = defs[layer].navn;
+function mapFileLayer(defs, layer1) {
+  if (!layer1.startsWith("NN-LA-TI-")) return;
+  const layer = hackKodeFordiUtdaterteKartdata(layer1);
+  if (layer1 === "NN-LA-TI-I") debugger;
+  const node = defs[layer1];
+  const tittel = node.navn;
   const parts = layer.split("-");
-  parts.pop();
+  if (parts.length > 1) parts.pop();
   const prefix = parts.join("-");
   return `
   LAYER NAME "${layer}"
     CONNECTIONTYPE OGR
-    CONNECTION "/data/${mapSourceRelativePath}/polygon.spatialite.4326.sqlite"
+    CONNECTION "/data/${node.url}/polygon.spatialite.4326.sqlite"
     DATA "${prefix.toLowerCase()}"
     CLASSITEM "code"
     TYPE         POLYGON
@@ -57,7 +59,7 @@ function mapFileLayer(defs, layer) {
       "init=epsg:32633"
     END
     CLASSITEM "code"
-${writeClasses(defs, layer).join("\n")}
+${writeClasses(defs, layer1).join("\n")}
   END`;
 }
 
@@ -71,7 +73,7 @@ function writeClasses(defs, kode) {
 
 function mapFileClass(def) {
   const { kode, r, g, b } = def;
-  let hackKode = kode.replace("-TI", "").replace("NN-", "");
+  let hackKode = hackKodeFordiUtdaterteKartdata(kode);
   return `
     CLASS NAME "${hackKode}"
       EXPRESSION ('[code]'='${hackKode}')
@@ -81,6 +83,10 @@ function mapFileClass(def) {
         COLOR ${r} ${g} ${b}
       END
     END`;
+}
+
+function hackKodeFordiUtdaterteKartdata(kode) {
+  return kode.replace("-TI", "").replace("NN-", "");
 }
 
 function readColors() {
@@ -105,10 +111,11 @@ function readColors() {
       kode: kode,
       sortkey: parts.pop(),
       layer: parts.join("-"),
+      url: type.overordnet.length > 0 && type.overordnet[0].url,
       ...tinycolor(type.farge).toRgb()
     };
     if (!(def.layer in layers))
-      layers[def.layer] = { navn: type.tittel.nb, barn: [] };
+      layers[def.layer] = { navn: type.tittel.nb, barn: [], url: def.url };
     layers[def.layer].barn.push(def);
   });
   return layers;
