@@ -54,8 +54,10 @@ function mapFileLayer(defs, layer1) {
     DATA "${layer.toLowerCase().replace(/-/g, "_")}"
     CLASSITEM "code"
     TYPE         POLYGON
+    TEMPLATE "../templates/la.html"
     METADATA
       "title" "${tittel}"
+      "gml_include_items" "all"
     END
     PROJECTION
       "init=epsg:32633"
