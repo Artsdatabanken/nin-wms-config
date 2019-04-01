@@ -6,6 +6,9 @@ const file = mapFile(defs);
 console.log(file);
 
 function mapFile(defs) {
+  const layers = mapFileLayers(defs);
+  if (!includeMapTag) return layers;
+
   return `
 MAP
   IMAGETYPE      PNG
@@ -22,7 +25,7 @@ MAP
     END
   END
 
-${mapFileLayers(defs)}
+${layers}
 
 END
 `;
@@ -49,7 +52,7 @@ function mapFileLayer(defs, layer1) {
   LAYER NAME "${layer}"
     CONNECTIONTYPE OGR
     CONNECTION "/data/${node.url}/polygon.spatialite.4326.sqlite"
-    DATA "${prefix.toLowerCase()}"
+    DATA "${layer.toLowerCase().replace(/-/g, "_")}"
     CLASSITEM "code"
     TYPE         POLYGON
     METADATA
