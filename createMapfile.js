@@ -17,7 +17,7 @@ MAP
   SHAPEPATH      "./data/LA/"
   IMAGECOLOR     255 0 255
   PROJECTION
-    "init=epsg:32633"
+    "init=epsg:4326"
   END
 
   WEB
@@ -60,7 +60,7 @@ function mapFileLayer(defs, layer1) {
       "gml_include_items" "all"
     END
     PROJECTION
-      "init=epsg:32633"
+      "init=epsg:4326"
     END
     CLASSITEM "code"
 ${writeClasses(defs, layer1).join("\n")}
