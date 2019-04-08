@@ -1,22 +1,24 @@
 {
-  "name": "ninMapfileCreator",
+  "name": "nin-wms-config",
   "version": "1.0.0",
   "description": "Create .map files for MapServer",
   "main": "createMapfile.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prebuild": "wget -N https://data.artsdatabanken.no/Natur_i_Norge/Landskap/metadata_med_undertyper.json",
+    "build": "node createMapfile.js >layers.map"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Artsdatabanken/ninMapfileCreator.git"
+    "url": "git+https://github.com/Artsdatabanken/nin-wms-config.git"
   },
   "keywords": [],
   "author": "Bjorn Reppen <bjreppen@gmail.com> (https://github.com/bjornreppen)",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Artsdatabanken/ninMapfileCreator/issues"
+    "url": "https://github.com/Artsdatabanken/nin-wms-config/issues"
   },
-  "homepage": "https://github.com/Artsdatabanken/ninMapfileCreator#readme",
+  "homepage": "https://github.com/Artsdatabanken/nin-wms-config#readme",
   "dependencies": {
     "tinycolor2": "^1.4.1"
   }
