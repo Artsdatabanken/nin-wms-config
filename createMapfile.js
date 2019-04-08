@@ -94,7 +94,7 @@ function hackKodeFordiUtdaterteKartdata(kode) {
 }
 
 function readColors() {
-  const data = fs.readFileSync("data/metadata_med_undertyper.json");
+  const data = fs.readFileSync("metadata_med_undertyper.json");
   const typer = JSON.parse(data).data;
   const layers = {};
   const foreldrenoder = {};
