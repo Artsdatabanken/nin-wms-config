@@ -95,7 +95,7 @@ function hackKodeFordiUtdaterteKartdata(kode) {
 
 function readColors() {
   const data = fs.readFileSync("metadata_med_undertyper.json");
-  const typer = JSON.parse(data).data;
+  const typer = JSON.parse(data);
   const layers = {};
   const foreldrenoder = {};
   Object.keys(typer).forEach(kode => {
@@ -105,11 +105,16 @@ function readColors() {
     });
   });
 
-  typer.forEach(type => {
+  Object.keys(typer).forEach(type => {
     const kode = type.kode;
+    // Trying to debug this section.
+    if (!kode) {
+      fs.appendFileSync("log.txt", "This is where it breaks.");
+    };
     if (kode.startsWith("meta")) return;
     if (kode.startsWith("NN-LA-KLG")) return;
     if (kode in foreldrenoder) return;
+    // End of current debug section.
     const forelder = type.overordnet[0] || {};
     const parts = kode.split("-");
     const def = {
